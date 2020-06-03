@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="NeroMissoes">
+    <output-path>$PROJECT_DIR$/../../../../../../workspace/servidores/1.8/plugins/</output-path>
+    <root id="root">
+      <element id="archive" name="NeroMissoes.jar">
+        <element id="module-output" name="NeroMissoes" />
+      </element>
+    </root>
+  </artifact>
+</component>

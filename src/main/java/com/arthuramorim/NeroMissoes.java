@@ -9,14 +9,14 @@ import com.arthuramorim.entitys.EntityMission;
 import com.arthuramorim.entitys.EntityPlayer;
 import com.arthuramorim.events.EventsPlayer;
 import com.arthuramorim.menus.MissionMenus;
+import com.github.eokasta.core.plugin.KPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class NeroMissoes extends JavaPlugin {
+public class NeroMissoes extends KPlugin {
 
     private ConfigsAPI configDefault;
     private NeroMissoes plugin;
@@ -28,9 +28,18 @@ public class NeroMissoes extends JavaPlugin {
     private HashSet<EntityMission> hashMission = new HashSet<>();
     private MissionManager missionManager;
 
+    public NeroMissoes() {
+        super("NeroMissoes", "1.0");
+    }
+
+
     @Override
-    public void onEnable() {
-        super.onEnable();
+    public void load() {
+
+    }
+
+    @Override
+    public void start() {
         plugin = this;
         getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "\n" +
                 "             __   __     ______     ______     ______                      \n" +
@@ -74,14 +83,13 @@ public class NeroMissoes extends JavaPlugin {
 
         missionMenus = new MissionMenus(this);
 
+
         mpc = new MissionPlayerController(this);
-
-
     }
 
     @Override
-    public void onDisable() {
-        super.onDisable();
+    public void stop() {
+
     }
 
     public ConfigsAPI getConfigDefault() {
@@ -115,6 +123,7 @@ public class NeroMissoes extends JavaPlugin {
     public MissionManager getMissionManager() {
         return missionManager;
     }
+
 
     public void setMissionMenus(MissionMenus missionMenus) {
         this.missionMenus = missionMenus;

@@ -53,6 +53,13 @@
             <systemPath>${project.basedir}/libs/KCore.jar</systemPath>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.github.azbh111/craftbukkit-1.8.8a -->
+        <dependency>
+            <groupId>com.github.azbh111</groupId>
+            <artifactId>craftbukkit-1.8.8</artifactId>
+            <version>R</version>
+        </dependency>
+
     </dependencies>
 
 
