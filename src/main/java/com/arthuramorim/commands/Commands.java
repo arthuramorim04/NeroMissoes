@@ -29,6 +29,7 @@ public class Commands implements CommandExecutor {
             p.sendMessage("\n\n");
             p.sendMessage(plugin.getHashMission().toString());
             p.sendMessage(plugin.getMissoes().getConfigFile().getConfigurationSection("mission").getString("1.missionName"));
+            plugin.getMissionMenus().teste(p);
             return false;
         }
 

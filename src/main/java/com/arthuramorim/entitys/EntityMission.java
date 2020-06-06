@@ -62,6 +62,7 @@ public class EntityMission {
         return description;
     }
 
+
     public Boolean verifyMission(Integer quantity){
         if(quantity >= this.quantity){
             return true;

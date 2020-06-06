@@ -26,6 +26,17 @@ public class EntityPlayer {
         return name;
     }
 
+    public boolean hasMission(EntityMission entityMission){
+        Integer contador = 0;
+        boolean hasMission = false;
+        for (EntityMissionAccept entityMissionAccept : missionHashSet) {
+            if(entityMissionAccept.getMission().getMissionName().equals(entityMission.getMissionName())){
+                hasMission = true;
+            }
+        }
+        return hasMission;
+    }
+
     public void setMissionHashSet(HashSet<EntityMissionAccept> missionHashSet) {
         this.missionHashSet = missionHashSet;
     }

@@ -20,4 +20,5 @@ public class EntityMissionAccept {
     public void setProgress(Integer progress) {
         this.progress = progress;
     }
+
 }

@@ -4,19 +4,18 @@ import com.arthuramorim.NeroMissoes;
 import com.arthuramorim.entitys.EntityMission;
 import com.arthuramorim.entitys.EntityMissionAccept;
 import com.arthuramorim.entitys.EntityPlayer;
-import com.github.eokasta.core.utils.inventorygui.buttons.ClickAction;
+import com.github.eokasta.core.utils.inventorygui.PaginatedGUIBuilder;
 import com.github.eokasta.core.utils.inventorygui.buttons.ItemButton;
 import com.github.eokasta.core.utils.inventorygui.menus.InventoryGUI;
 import com.github.eokasta.core.utils.utils.MakeItem;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class MissionMenus extends InventoryGUI {
@@ -39,52 +38,38 @@ public class MissionMenus extends InventoryGUI {
 
     private void createInvMission(Player p) {
 
-        ItemButton lanterButton = new ItemButton(seaLantern);
-        ItemButton webButton = new ItemButton(web);
-        ItemButton arrowButton = new ItemButton(arrow);
-        ItemButton backgroundButton = new ItemButton(background);
-        arrowButton.setDefaultAction(ClickAction -> {
-            p.closeInventory();
-
-        });
-
-        for (int i = 0; i < menu.getInventory().getSize(); i++) {
-            menu.setButton(i, backgroundButton);
-        }
+        List<ItemButton> list = new ArrayList<>();
 
         for (EntityMission entityMission : plugin.getHashMission()) {
             MakeItem missionItem = new MakeItem(entityMission.getIdItem(), entityMission.getDataItem());
             missionItem.addLore((ArrayList<String>) entityMission.getDescription());
             missionItem.setName(entityMission.getMissionName());
             ItemButton mission = new ItemButton(missionItem.build());
-            mission.addAction(ClickType.LEFT, ClickAction ->{
-                //erro ao registrar os eventos do inv, ver com o kasta
-                addMission(p,entityMission);
-                p.sendMessage("a");
+            mission.addAction(ClickType.LEFT, ClickAction -> {
+                    openMissionProgress(p,missionItem.build());
             });
-            setButton(entityMission.getSlot(), mission);
+           list.add(mission);
         }
 
-        menu.setButton(40, arrowButton);
-        menu.setButton(0, lanterButton);
-        menu.setButton(8, lanterButton);
-        menu.setButton(36, lanterButton);
-        menu.setButton(44, lanterButton);
-        menu.setButton(1, webButton);
-        menu.setButton(7, webButton);
-        menu.setButton(9, webButton);
-        menu.setButton(17, webButton);
-        menu.setButton(27, webButton);
-        menu.setButton(35, webButton);
-        menu.setButton(37, webButton);
-        menu.setButton(43, webButton);
+        PaginatedGUIBuilder paginatedGUIBuilder = new PaginatedGUIBuilder("&bMissoes",
+                "xxxxxxxxx" +
+                        "x#######x" +
+                        "x#######x" +
+                        "<#######>" +
+                        "X#######X"
+
+        );
+        paginatedGUIBuilder.setContent(list);
+        paginatedGUIBuilder.setNextPageItem(Material.ARROW, 1, "Proxima pagina");
+        paginatedGUIBuilder.setPreviousPageItem(Material.ARROW, 1, "Pagina Anterior");
+
+        paginatedGUIBuilder.build().show(p);
 
 
     }
 
     public void openMenuMission(Player p) {
         createInvMission(p);
-        menu.show(p);
     }
 
     public void createInvAcceptMission(Player p, ItemStack itemMission) {
@@ -112,18 +97,11 @@ public class MissionMenus extends InventoryGUI {
 
         acceptButton.setDefaultAction(ClickAction -> {
             for (EntityMission missionAccept : plugin.getHashMission()) {
-                if (missionAccept.getMissionName().equals(itemMission.getItemMeta().getDisplayName())) {
-                    EntityMissionAccept missionTemp = new EntityMissionAccept();
-                    missionTemp.setMission(missionAccept);
-                    missionTemp.setProgress(0);
-
-                    EntityPlayer entityPlayer = plugin.getHashPlayer().get(p.getName());
-                    entityPlayer.getMissionHashSet().add(missionTemp);
-                    p.sendMessage("&bMissao " + missionTemp.getMission().getMissionName() + " adicionada com sucesso");
-                    p.closeInventory();
-                }
+                    addMission(p,missionAccept);
             }
         });
+
+
 
         cancelButton.setDefaultAction(ClickAction -> {
             p.closeInventory();
@@ -152,7 +130,7 @@ public class MissionMenus extends InventoryGUI {
 
     }
 
-    public void progressMission(Player p, ItemStack itemMission) {
+    public void createProgressMission(Player p, ItemStack itemMission) {
         ItemButton lanterButton = new ItemButton(seaLantern);
         ItemButton webButton = new ItemButton(web);
         ItemButton arrowButton = new ItemButton(arrow);
@@ -162,7 +140,7 @@ public class MissionMenus extends InventoryGUI {
         });
 
         for (int i = 0; i < menu.getInventory().getSize(); i++) {
-            menu.setButton(i, backgroundButton);
+            progressMission.setButton(i, backgroundButton);
         }
 
 
@@ -197,29 +175,78 @@ public class MissionMenus extends InventoryGUI {
     }
 
     public void openMissionProgress(Player p, ItemStack itemMission) {
-        createInvAcceptMission(p, itemMission);
-        acceptMission.show(p);
+        createProgressMission(p, itemMission);
+        progressMission.show(p);
 
     }
 
 
-    public void addMission(Player p,EntityMission mission){
-        if(hasMission(p,mission)){
-            p.sendMessage("a");
-        }else{
-            p.sendMessage("b");
-        }
+    public void addMission(Player p, EntityMission mission) {
+        EntityPlayer entityPlayer = plugin.getHashPlayer().get(p.getName());
+        EntityMissionAccept entityMissionAccept = new EntityMissionAccept();
+        entityMissionAccept.setMission(mission);
+        entityMissionAccept.setProgress(0);
+        entityPlayer.getMissionHashSet().add(entityMissionAccept);
+        p.closeInventory();
+        p.sendMessage("&aVoce recebeu uma nova missao");
     }
 
-    public boolean hasMission(Player p,EntityMission mission){
-        for (EntityMissionAccept entityMissionAccept : plugin.getHashPlayer().get(p.getName()).getMissionHashSet()) {
-            if(entityMissionAccept.getMission() == mission){
-                return true;
-            }else{
-                continue;
-            }
-        }
-        return false;
+    public boolean hasMission(Player p, EntityMission mission) {
+        boolean hasMission = false;
+        EntityPlayer entityPlayer = plugin.getHashPlayer().get(p.getName());
+        HashSet<EntityMissionAccept> missionHashSet = entityPlayer.getMissionHashSet();
+        return hasMission;
+    }
+
+
+    //testes
+
+    public void teste(Player p) {
+        List<ItemButton> list = new ArrayList<>();
+        list.add(new ItemButton(Material.CARROT, 1, "1"));
+        list.add(new ItemButton(Material.SEA_LANTERN, 1, "2"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "3"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "4"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "5"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "6"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "7"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "8"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "9"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "11"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "12"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "13"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "14"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "15"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "16"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "17"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "18"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "19"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "20"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "21"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "22"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "23"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "24"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "25"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "26"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "27"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "28"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "29"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "30"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "31"));
+        list.add(new ItemButton(Material.DIAMOND, 1, "32"));
+        PaginatedGUIBuilder paginatedGUIBuilder = new PaginatedGUIBuilder("Teste",
+                "xxxxxxxxx" +
+                        "x#######x" +
+                        "x#######x" +
+                        "<#######>" +
+                        "X#######X"
+
+        );
+        paginatedGUIBuilder.setContent(list);
+        paginatedGUIBuilder.setNextPageItem(Material.ARROW, 1, "Proxima pagina");
+        paginatedGUIBuilder.setPreviousPageItem(Material.ARROW, 1, "Pagina Anterior");
+
+        paginatedGUIBuilder.build().show(p);
     }
 
 }
