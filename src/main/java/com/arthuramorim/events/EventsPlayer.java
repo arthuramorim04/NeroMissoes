@@ -29,6 +29,6 @@ public class EventsPlayer implements Listener {
 
     @EventHandler
     public void quitPlayer(PlayerQuitEvent e) {
-        plugin.getHashPlayer().remove(e.getPlayer().getName());
+        plugin.getMpc().savePlayer(plugin.getHashPlayer().get(e.getPlayer().getName()));
     }
 }

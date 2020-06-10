@@ -9,6 +9,7 @@ import com.arthuramorim.entitys.EntityMission;
 import com.arthuramorim.entitys.EntityPlayer;
 import com.arthuramorim.events.EventsPlayer;
 import com.arthuramorim.menus.MissionMenus;
+import com.arthuramorim.task.Tasks;
 import com.github.eokasta.core.plugin.KPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,9 +28,11 @@ public class NeroMissoes extends KPlugin {
     private HashMap<String, EntityPlayer> hashPlayer = new HashMap<>();
     private HashSet<EntityMission> hashMission = new HashSet<>();
     private MissionManager missionManager;
+    private Tasks tasks;
 
     public NeroMissoes() {
-        super("NeroMissoes", "1.0");
+        super("NeroMissoes", "1.0", "KingN3R0");
+        addDepends("KCore");
     }
 
 
@@ -85,6 +88,9 @@ public class NeroMissoes extends KPlugin {
 
 
         mpc = new MissionPlayerController(this);
+        tasks = new Tasks(this);
+        tasks.runTaskTimerAsynchronously(this,0L,20*600L);
+
     }
 
     @Override
@@ -124,6 +130,9 @@ public class NeroMissoes extends KPlugin {
         return missionManager;
     }
 
+    public NeroMissoes getPlugin() {
+        return plugin;
+    }
 
     public void setMissionMenus(MissionMenus missionMenus) {
         this.missionMenus = missionMenus;

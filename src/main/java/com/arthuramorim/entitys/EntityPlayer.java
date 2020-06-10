@@ -28,13 +28,13 @@ public class EntityPlayer {
 
     public boolean hasMission(EntityMission entityMission){
         Integer contador = 0;
-        boolean hasMission = false;
-        for (EntityMissionAccept entityMissionAccept : missionHashSet) {
-            if(entityMissionAccept.getMission().getMissionName().equals(entityMission.getMissionName())){
-                hasMission = true;
+        for (EntityMissionAccept entityMissionPlayer : missionHashSet) {
+            if(entityMission.getMissionName().equals(entityMissionPlayer.getMission().getMissionName())){
+                String missionName = entityMission.getMissionName();
+                return true;
             }
         }
-        return hasMission;
+        return false;
     }
 
     public void setMissionHashSet(HashSet<EntityMissionAccept> missionHashSet) {
@@ -44,5 +44,14 @@ public class EntityPlayer {
 
     public HashSet<EntityMissionAccept> getMissionHashSet() {
         return missionHashSet;
+    }
+
+    @Override
+    public String toString() {
+        return "EntityPlayer{" +
+                "uuid=" + uuid +
+                ", name='" + name + '\'' +
+                ", missionHashSet=" + missionHashSet.toString() +
+                '}';
     }
 }
