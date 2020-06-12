@@ -1,31 +1,60 @@
-mission:
-  1:
-    requirement: 5
-    missionName: "&aDominador de Fungos"
-    reward: 500
-    slot: 19
-    type: "place"
-    idItem: 372
-    dataItem: 0
-    description:
-      - ''
-      - '&fVoce deve plantar 100.000'
-      - '&ffungos do nether.'
-      - ''
-      - '&fRecompensa: &a500 ppoints'
-    quantity: 100000
-  2:
-    requirement: 10
-    missionName: "&aColetor de Cactus"
-    reward: 500
-    slot: 20
-    type: "break"
-    idItem: 81
-    dataItem: 0
-    description:
-      - ''
-      - '&fVoce deve quebrar 10000'
-      - '&fcactos.'
-      - ''
-      - '&fRecompensa: &a500 ppoints'
-    quantity: 10000
+# tempo para expirar a missao eh colocado em minutos
+# Caso queira que a missao nunca expire sete em expired 0
+# As missoes sao verificadas se ja expiraram quando o player ve suas missoes ou quando ele quebra o bloco da missao
+# Missoes de place não funcionam com sementes
+
+
+  mission:
+    1:
+      requirement: 5
+      missionName: "&aMinerador de Pedra"
+      reward: 10
+      typeReward: "ppoints"
+      expired: 60
+      slot: 19
+      type: "break"
+      idItem: 1
+      dataItem: 0
+      description:
+        - ''
+        - '&fVoce deve quebrar 10'
+        - '&fblocos de terra.'
+        - ''
+        - '&fExpira em: 60 minutos'
+        - '&fRecompensa: &a500 ppoints'
+      quantity: 20000
+    2:
+      requirement: 5
+      missionName: "&aUtilizando recursos: Pedra"
+      reward: 10000
+      typeReward: "coins"
+      expired: 60
+      slot: 19
+      type: "place"
+      idItem: 1
+      dataItem: 0
+      description:
+        - ''
+        - '&fVoce deve colocar 10000'
+        - '&fblocos de pedra.'
+        - ''
+        - - '&fNão expira'
+        - '&fRecompensa: &a10000 coins'
+      quantity: 10000
+    3:
+      requirement: 5
+      missionName: "&aDominador do PVP"
+      reward: 500
+      typeReward: "ppoints"
+      expired: 10
+      slot: 19
+      type: "pvp"
+      idItem: 372
+      dataItem: 0
+      description:
+        - ''
+        - '&fVoce deve matar 1 jogador'
+        - ''
+        - - '&fExpira em: 10 minutos'
+        - '&fRecompensa: &a500 ppoints'
+      quantity: 15

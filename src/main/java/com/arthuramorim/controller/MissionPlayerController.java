@@ -4,7 +4,7 @@ import com.arthuramorim.NeroMissoes;
 import com.arthuramorim.entitys.EntityMissionAccept;
 import com.arthuramorim.entitys.EntityPlayer;
 import com.google.gson.Gson;
-import org.bukkit.Bukkit;
+import com.google.gson.JsonElement;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
@@ -30,7 +30,7 @@ public class MissionPlayerController {
         EntityPlayer player = new EntityPlayer(p.getUniqueId(), p.getName());
         HashSet<EntityMissionAccept> missionList = new HashSet<>();
         player.setMissionHashSet(missionList);
-        String jsonPlayer = gson.toJson(player);
+        JsonElement jsonPlayer = gson.toJsonTree(player);
         con = plugin.getDbConnection().getConnection();
 
         try{
@@ -61,11 +61,9 @@ public class MissionPlayerController {
             ResultSet result = ps.executeQuery();
 
             while (result.next()){
-                //salvar as informacoes da querry no objeto novamente
 
                 EntityPlayer loadPlayer = new EntityPlayer();
                 String missoes = result.getString("missoes");
-                plugin.getServer().getConsoleSender().sendMessage(missoes.toString());
                 loadPlayer = gson.fromJson(result.getString("missoes"),EntityPlayer.class);
 
                 plugin.getHashPlayer().put(result.getString("name"),loadPlayer);
@@ -88,7 +86,7 @@ public class MissionPlayerController {
         con = plugin.getDbConnection().getConnection();
 
         try{
-            String s = gson.toJson(p);
+            JsonElement s = gson.toJsonTree(p);
             PreparedStatement ps = con.prepareStatement("update neromissoes " +
                     "set missoes = '"+s+"' where name = '"+p.getName()+"';");
             if(ps.execute()){

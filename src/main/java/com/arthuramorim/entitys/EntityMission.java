@@ -12,13 +12,17 @@ public class EntityMission {
     private Integer slot;
     private Byte dataItem;
     private Integer quantity;
+    private String typeReward;
     private List<String> description;
+    private Integer expired;
 
-    public EntityMission(String missionName, String type, Integer requirement, Integer reward, Integer idItem, Byte dataItem, Integer quantity, Integer slot,List<String> description) {
+    public EntityMission(String missionName, String type, Integer requirement, Integer reward, String typeReward,Integer expired, Integer idItem, Byte dataItem, Integer quantity, Integer slot,List<String> description) {
         this.missionName = missionName;
         this.type = type;
         this.requirement = requirement;
         this.reward = reward;
+        this.typeReward = typeReward;
+        this.expired = expired;
         this.idItem = idItem;
         this.dataItem = dataItem;
         this.quantity = quantity;
@@ -71,4 +75,11 @@ public class EntityMission {
         }
     }
 
+    public Integer getExpired() {
+        return expired;
+    }
+
+    public String getTypeReward() {
+        return typeReward;
+    }
 }

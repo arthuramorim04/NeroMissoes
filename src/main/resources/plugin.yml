@@ -1,7 +1,7 @@
 name: NeroMissoes
 main: com.arthuramorim.NeroMissoes
 version: 1.0
-depend: [KCore]
+depend: [NeroAPI]
 
 commands:
   missoes:

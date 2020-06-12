@@ -8,16 +8,16 @@ import com.arthuramorim.database.DBManager;
 import com.arthuramorim.entitys.EntityMission;
 import com.arthuramorim.entitys.EntityPlayer;
 import com.arthuramorim.events.EventsPlayer;
+import com.arthuramorim.events.MissionEvents;
 import com.arthuramorim.menus.MissionMenus;
 import com.arthuramorim.task.Tasks;
-import com.github.eokasta.core.plugin.KPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class NeroMissoes extends KPlugin {
+public class NeroMissoes extends NeroPlugin {
 
     private ConfigsAPI configDefault;
     private NeroMissoes plugin;
@@ -32,7 +32,7 @@ public class NeroMissoes extends KPlugin {
 
     public NeroMissoes() {
         super("NeroMissoes", "1.0", "KingN3R0");
-        addDepends("KCore");
+        addDepends("NeroAPI");
     }
 
 
@@ -79,6 +79,7 @@ public class NeroMissoes extends KPlugin {
 
 
         Bukkit.getPluginManager().registerEvents(new EventsPlayer(this),this);
+        Bukkit.getPluginManager().registerEvents(new MissionEvents(this),this);
         getCommand("missoes").setExecutor(new Commands(this));
         getCommand("missoesreload").setExecutor(new Commands(this));
         getCommand("teste").setExecutor(new Commands(this));
