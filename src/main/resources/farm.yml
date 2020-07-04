@@ -1,0 +1,17 @@
+mission:
+  1:
+    requirement: 5
+    missionName: "&aDominador de Fungos"
+    reward: 250
+    type: "place"
+    idItem: 372
+    dataItem: 0
+    quantity: 1000
+  2:
+    requirement: 10
+    missionName: "&aColetor de Cactus"
+    reward: 250
+    type: "break"
+    idItem: 81
+    dataItem: 0
+    quantity: 1000

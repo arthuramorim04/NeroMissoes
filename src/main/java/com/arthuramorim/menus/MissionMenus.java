@@ -62,6 +62,7 @@ public class MissionMenus extends InventoryGUI implements Listener {
                     }
                 } else {
                     if (entityPlayer.hasMission(entityMission)) {
+
                     } else {
                         if (addMission(entityPlayer, entityMission)) {
                             p.sendMessage(TextUtil.color("&aMissao : " + entityMission.getMissionName() + " &aAdicionada com sucesso!"));

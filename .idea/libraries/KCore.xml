@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="KCore">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../../workspace/servidores/1.8/plugins/KCore.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

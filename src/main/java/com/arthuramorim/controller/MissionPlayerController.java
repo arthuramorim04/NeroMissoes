@@ -20,12 +20,13 @@ public class MissionPlayerController {
 
     private NeroMissoes plugin;
 
-    public MissionPlayerController(NeroMissoes plugin){
+    public MissionPlayerController(NeroMissoes plugin) {
         this.plugin = (NeroMissoes) plugin;
     }
+
     private Connection con;
 
-    public void registerNewPlayer(Player p){
+    public void registerNewPlayer(Player p) {
 
         EntityPlayer player = new EntityPlayer(p.getUniqueId(), p.getName());
         HashSet<EntityMissionAccept> missionList = new HashSet<>();
@@ -33,68 +34,66 @@ public class MissionPlayerController {
         JsonElement jsonPlayer = gson.toJsonTree(player);
         con = plugin.getDbConnection().getConnection();
 
-        try{
+        try {
             PreparedStatement ps;
 
-            if(player.getUuid() != null && player.getName() != null){
+            if (player.getUuid() != null && player.getName() != null) {
                 ps = con.prepareStatement("insert into neromissoes" +
-                                              "(name,uuid,missoes)" +
-                                              "values('"+p.getName()+"','"+p.getUniqueId()+"','"+jsonPlayer+"')");
+                        "(name,uuid,missoes)" +
+                        "values('" + p.getName() + "','" + p.getUniqueId() + "','" + jsonPlayer + "')");
 
                 ps.execute();
                 ps.close();
-                plugin.getHashPlayer().put(p.getName(),player);
-            }else{
+                plugin.getHashPlayer().put(p.getName(), player);
+            } else {
                 System.out.println("uuid ou nome de jogador nulo.");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public void loadPlayer(Player p){
+    public void loadPlayer(Player p) {
         boolean existPlayer = false;
         EntityPlayer player = new EntityPlayer(p.getUniqueId(), p.getName());
         con = plugin.getDbConnection().getConnection();
-        try{
-            PreparedStatement ps = con.prepareStatement("select name, uuid, missoes from neromissoes where name = '"+p.getName()+"'");
+        try {
+            PreparedStatement ps = con.prepareStatement("select name, uuid, missoes from neromissoes where name = '" + p.getName() + "'");
             ResultSet result = ps.executeQuery();
 
-            while (result.next()){
+            while (result.next()) {
 
                 EntityPlayer loadPlayer = new EntityPlayer();
                 String missoes = result.getString("missoes");
-                loadPlayer = gson.fromJson(result.getString("missoes"),EntityPlayer.class);
+                loadPlayer = gson.fromJson(result.getString("missoes"), EntityPlayer.class);
 
-                plugin.getHashPlayer().put(result.getString("name"),loadPlayer);
+                plugin.getHashPlayer().put(result.getString("name"), loadPlayer);
                 existPlayer = true;
 
             }
-            if(existPlayer == false){
+            if (existPlayer == false) {
                 registerNewPlayer(p);
             }
 
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             registerNewPlayer(p);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public void savePlayer(EntityPlayer p){
+    public void savePlayer(EntityPlayer p) {
 
         con = plugin.getDbConnection().getConnection();
 
-        try{
+        try {
             JsonElement s = gson.toJsonTree(p);
             PreparedStatement ps = con.prepareStatement("update neromissoes " +
-                    "set missoes = '"+s+"' where name = '"+p.getName()+"';");
-            if(ps.execute()){
-                plugin.getHashPlayer().remove(p.getName());
-            }else{
-                System.out.println("Erro ao salvar o jogador");
-            }
-        }catch (Exception e){
+                    "set missoes = '" + s + "' where name = '" + p.getName() + "';");
+            ps.execute();
+            plugin.getHashPlayer().remove(p.getName());
+
+        } catch (Exception e) {
             System.out.println(e.getStackTrace());
         }
 
