@@ -25,7 +25,7 @@ public class Tasks extends BukkitRunnable {
 
         for(Player p : Bukkit.getOnlinePlayers()){
             EntityPlayer entityPlayer = plugin.getHashPlayer().get(p.getName());
-            plugin.getMpc().savePlayer(entityPlayer);
+            plugin.getMissionPlayerController().savePlayer(entityPlayer);
         }
     }
 }

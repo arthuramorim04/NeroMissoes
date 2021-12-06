@@ -9,8 +9,10 @@ import com.arthuramorim.entitys.EntityMission;
 import com.arthuramorim.entitys.EntityPlayer;
 import com.arthuramorim.events.EventsPlayer;
 import com.arthuramorim.events.MissionEvents;
+import com.arthuramorim.hooks.PlayerPoint;
 import com.arthuramorim.menus.MissionMenus;
 import com.arthuramorim.task.Tasks;
+import org.black_ixx.playerpoints.PlayerPoints;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -24,11 +26,13 @@ public class NeroMissoes extends NeroPlugin {
     private ConfigsAPI missoes;
     private MissionMenus missionMenus;
     private DBManager dbConnection;
-    private MissionPlayerController mpc;
+    private MissionPlayerController missionPlayerController;
     private HashMap<String, EntityPlayer> hashPlayer = new HashMap<>();
     private HashSet<EntityMission> hashMission = new HashSet<>();
     private MissionManager missionManager;
     private Tasks tasks;
+
+    private PlayerPoint playerPoints;
 
     public NeroMissoes() {
         super("NeroMissoes", "1.0", "KingN3R0");
@@ -58,11 +62,10 @@ public class NeroMissoes extends NeroPlugin {
                 "  \\/_/  \\/_/   \\/_/   \\/_____/   \\/_____/   \\/_____/   \\/_____/   \\/_____/ \n\n" +
                 "");
         getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[NeroMissoes]" + "INICIALIZANDO...");
-
+        this.playerPoints = new PlayerPoint(this);
         getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[NeroMissoes]" + "Carregando configuracoes");
         configDefault = new ConfigsAPI(this,"config");
         missoes = new ConfigsAPI(this,"missoes");
-
         String user = configDefault.getConfigFile().getString("storage.user");
         String pass = configDefault.getConfigFile().getString("storage.pass");
         String host = configDefault.getConfigFile().getString("storage.host");
@@ -88,7 +91,7 @@ public class NeroMissoes extends NeroPlugin {
         missionMenus = new MissionMenus(this);
 
 
-        mpc = new MissionPlayerController(this);
+        missionPlayerController = new MissionPlayerController(this);
         tasks = new Tasks(this);
         tasks.runTaskTimerAsynchronously(this,0L,20*600L);
 
@@ -115,8 +118,8 @@ public class NeroMissoes extends NeroPlugin {
         return dbConnection;
     }
 
-    public MissionPlayerController getMpc() {
-        return mpc;
+    public MissionPlayerController getMissionPlayerController() {
+        return missionPlayerController;
     }
 
     public HashMap<String, EntityPlayer> getHashPlayer() {
@@ -137,5 +140,9 @@ public class NeroMissoes extends NeroPlugin {
 
     public void setMissionMenus(MissionMenus missionMenus) {
         this.missionMenus = missionMenus;
+    }
+
+    public PlayerPoint getPlayerPoints() {
+        return playerPoints;
     }
 }

@@ -1,10 +1,13 @@
 package com.arthuramorim.events;
 
 import com.arthuramorim.NeroMissoes;
+import com.arthuramorim.entitys.EntityMission;
 import com.arthuramorim.entitys.EntityMissionAccept;
 import com.arthuramorim.entitys.EntityPlayer;
 import com.arthuramorim.utils.player.PlayerUtil;
 import com.arthuramorim.utils.utils.TextUtil;
+import org.black_ixx.playerpoints.PlayerPoints;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,9 +15,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
+import java.util.HashSet;
+import java.util.Objects;
+
 public class MissionEvents implements Listener {
 
-    private NeroMissoes plugin;
+    private final NeroMissoes plugin;
 
     public MissionEvents(NeroMissoes plugin) {
         this.plugin = plugin;
@@ -23,92 +29,13 @@ public class MissionEvents implements Listener {
 
     @EventHandler
     public void breakBlockMission(BlockBreakEvent e) {
-        Player player = e.getPlayer();
-
-        if (e.isCancelled()) return;
-
-        EntityPlayer entityPlayer = plugin.getHashPlayer().get(player.getName());
-
-        if (entityPlayer.getMissionHashSet().isEmpty() || entityPlayer.getMissionHashSet() == null) return;
-
-        for (EntityMissionAccept entityMissionAccept : entityPlayer.getMissionHashSet()) {
-            if (!entityMissionAccept.missionExpired()) {
-
-                if (entityMissionAccept.getMission().getType().equalsIgnoreCase("break")) {
-                    if (entityMissionAccept.getMission().getIdItem() == e.getBlock().getType().getId() &&
-                            entityMissionAccept.getMission().getDataItem() == e.getBlock().getData()) {
-                        Integer oldProgress = entityMissionAccept.getProgress();
-                        entityMissionAccept.setProgress(oldProgress + 1);
-                        if (entityMissionAccept.getProgress() == entityMissionAccept.getMission().getQuantity()) {
-                            if (entityMissionAccept.getMission().getTypeReward().equalsIgnoreCase("coins")) {
-                                PlayerUtil.addBalance(player, entityMissionAccept.getMission().getReward());
-                                entityPlayer.getMissionHashSet().remove(entityMissionAccept);
-                                player.sendMessage(TextUtil.color("&aVocê completou a missão " + entityMissionAccept.getMission()
-                                        .getMissionName()));
-                                return;
-                            }
-                            if (entityMissionAccept.getMission().getTypeReward().equalsIgnoreCase("ppoints")) {
-                                PlayerUtil.addPpoints(player, entityMissionAccept.getMission().getReward());
-                                entityPlayer.getMissionHashSet().remove(entityMissionAccept);
-                                player.sendMessage(TextUtil.color("&aVocê completou a missão " + entityMissionAccept.getMission()
-                                        .getMissionName()));
-                                return;
-                            }
-
-                        }
-                    }
-                }
-            } else {
-                entityPlayer.getMissionHashSet().remove(entityMissionAccept);
-                player.sendMessage(TextUtil.color("&cA missao &f" + entityMissionAccept.getMission().getMissionName() + "&c expirou"));
-            }
-        }
+        checkMissionAndProcess(e.getPlayer(), e.isCancelled(), e.getBlock(), "break");
     }
 
 
     @EventHandler
     public void placeBlockMission(BlockPlaceEvent e) {
-
-        if (!(e.getPlayer() instanceof Player)) return;
-
-        Player player = e.getPlayer();
-
-        EntityPlayer entityPlayer = plugin.getHashPlayer().get(player.getName());
-
-        if (entityPlayer.getMissionHashSet().isEmpty() || entityPlayer.getMissionHashSet() == null) return;
-
-        for (EntityMissionAccept entityMissionAccept : entityPlayer.getMissionHashSet()) {
-            if (!entityMissionAccept.missionExpired()) {
-
-                if (entityMissionAccept.getMission().getType().equalsIgnoreCase("place")) {
-                    if (entityMissionAccept.getMission().getIdItem() == e.getBlock().getType().getId() &&
-                            entityMissionAccept.getMission().getDataItem() == e.getBlock().getData()) {
-
-                        Integer oldProgress = entityMissionAccept.getProgress();
-                        entityMissionAccept.setProgress(oldProgress + 1);
-                        if (entityMissionAccept.getProgress() == entityMissionAccept.getMission().getQuantity()) {
-                            if (entityMissionAccept.getMission().getTypeReward().equalsIgnoreCase("coins")) {
-                                PlayerUtil.addBalance(player, entityMissionAccept.getMission().getReward());
-                                entityPlayer.getMissionHashSet().remove(entityMissionAccept);
-                                player.sendMessage(TextUtil.color("&aVocê completou a missão " + entityMissionAccept.getMission()
-                                        .getMissionName()));
-                                return;
-                            }
-                            if (entityMissionAccept.getMission().getTypeReward().equalsIgnoreCase("ppoints")) {
-                                PlayerUtil.addPpoints(player, entityMissionAccept.getMission().getReward());
-                                entityPlayer.getMissionHashSet().remove(entityMissionAccept);
-                                player.sendMessage(TextUtil.color("&aVocê completou a missão " + entityMissionAccept.getMission()
-                                        .getMissionName()));
-                                return;
-                            }
-                        }
-                    }
-                }
-            } else {
-                entityPlayer.getMissionHashSet().remove(entityMissionAccept);
-                player.sendMessage(TextUtil.color("&cA missao &f" + entityMissionAccept.getMission().getMissionName() + "&c expirou"));
-            }
-        }
+        checkMissionAndProcess(e.getPlayer(), e.isCancelled(), e.getBlock(), "place");
 
     }
 
@@ -117,37 +44,86 @@ public class MissionEvents implements Listener {
 
         Player killer = e.getEntity().getKiller();
 
-        if (!(e.getEntity().getKiller() instanceof Player)) return;
+        if (e.getEntity().getKiller() == null) return;
 
         EntityPlayer entityPlayer = plugin.getHashPlayer().get(killer.getName());
+        HashSet<EntityMissionAccept> missions = entityPlayer.getMissionHashSet();
+        if (missions.isEmpty()) return;
+
+        missionProcess(killer, null, missions, "place");
+
+    }
 
 
-        for (EntityMissionAccept entityMissionAccept : entityPlayer.getMissionHashSet()) {
-            if (entityMissionAccept.getMission().getType().equalsIgnoreCase("pvp")) {
-                Integer oldProgress = entityMissionAccept.getProgress();
+    private boolean equalsId(Integer itemId1, Integer itemId2) {
+        return Objects.equals(itemId1, itemId2);
+    }
 
-                entityMissionAccept.setProgress(oldProgress + 1);
+    private boolean equalData(byte itemData1, byte itemData2) {
+        return itemData1 == itemData2;
+    }
 
-                if (entityMissionAccept.getProgress() == entityMissionAccept.getMission().getQuantity()) {
-                    if (entityMissionAccept.getMission().getTypeReward().equalsIgnoreCase("coins")) {
-                        PlayerUtil.addBalance(killer, entityMissionAccept.getMission().getReward());
-                        entityPlayer.getMissionHashSet().remove(entityMissionAccept);
-                        killer.sendMessage(TextUtil.color("&aVocê completou a missão " + entityMissionAccept.getMission()
-                                .getMissionName()));
-                        return;
+    private void checkMissionAndProcess(Player player, boolean cancelled, Block block, String type) {
+        if (cancelled) return;
+        EntityPlayer entityPlayer = plugin.getHashPlayer().get(player.getName());
+        HashSet<EntityMissionAccept> missions = entityPlayer.getMissionHashSet();
+        if (missions.isEmpty()) return;
+        missionProcess(player, block, missions, type);
+    }
+
+    private void missionProcess(Player player, Block block, HashSet<EntityMissionAccept> missions, String type) {
+        for (EntityMissionAccept entityMissionAccept : missions) {
+            if (!entityMissionAccept.missionExpired()) {
+                if ((block != null && isCorrectBlockAndMissionType(entityMissionAccept, block, type)) || type.equalsIgnoreCase("pvp")) {
+                    updateMissionProgress(entityMissionAccept);
+                    if (checkIfMissionFinished(entityMissionAccept)) {
+                        removeMission(entityMissionAccept, missions);
+                        sendRewards(entityMissionAccept, player);
                     }
-                    if (entityMissionAccept.getMission().getTypeReward().equalsIgnoreCase("ppoints")) {
-                        PlayerUtil.addPpoints(killer, entityMissionAccept.getMission().getReward());
-                        entityPlayer.getMissionHashSet().remove(entityMissionAccept);
-                        killer.sendMessage(TextUtil.color("&aVocê completou a missão " + entityMissionAccept.getMission()
-                                .getMissionName()));
-                        return;
-                    }
+                    return;
                 }
+            } else {
+                missions.remove(entityMissionAccept);
+                player.sendMessage(TextUtil.color("&cA missão &f" + entityMissionAccept.getMission().getMissionName() + "&c expirado"));
             }
         }
     }
 
+    private void updateMissionProgress(EntityMissionAccept entityMissionAccept) {
+        entityMissionAccept.setProgress(entityMissionAccept.getProgress() + 1);
+    }
 
+    private boolean isCorrectBlockAndMissionType(EntityMissionAccept entityMissionAccept, Block block, String type) {
+        EntityMission mission = entityMissionAccept.getMission();
+        return entityMissionAccept.getMission().getType().equalsIgnoreCase(type)
+                && equalsId(mission.getIdItem(), block.getType().getId()) && equalData(mission.getDataItem(), block.getData());
+    }
+
+    private boolean checkIfMissionFinished(EntityMissionAccept entityMissionAccept) {
+        return Objects.equals(entityMissionAccept.getProgress(), entityMissionAccept.getMission().getQuantity());
+    }
+
+    private void removeMission(EntityMissionAccept entityMissionAccept, HashSet<EntityMissionAccept> missions) {
+        missions.remove(entityMissionAccept);
+    }
+
+    private void sendRewards(EntityMissionAccept entityMissionAccept, Player player) {
+        if (entityMissionAccept.getMission().getTypeReward().equalsIgnoreCase("coins")) {
+            PlayerUtil.addBalance(player, entityMissionAccept.getMission().getReward());
+            player.sendMessage(TextUtil.color("&aVocê completou a missão " + entityMissionAccept.getMission()
+                    .getMissionName()));
+        }
+        if (entityMissionAccept.getMission().getTypeReward().equalsIgnoreCase("ppoints")) {
+            PlayerPoints playerPoints = plugin.getPlayerPoints().getPlayerPoints();
+            if (playerPoints != null) {
+                playerPoints.getAPI().give(player.getUniqueId(), entityMissionAccept.getMission().getReward());
+                player.sendMessage(TextUtil.color("&aVocê completou a missão " + entityMissionAccept.getMission()
+                        .getMissionName()));
+            } else {
+                player.sendMessage(TextUtil.color("&aNão foi possível enviar sua recompensa, " +
+                        "entre em contato com um administrador ou superior"));
+            }
+        }
+    }
 }
 
